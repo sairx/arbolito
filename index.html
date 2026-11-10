@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi Davi · El árbol de nuestro amor</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#05030c;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center}
+#st{position:relative;height:min(100vh,calc(100vw*16/9));aspect-ratio:9/16;background:#0a0618;overflow:hidden;container-type:inline-size}
+canvas{width:100%;height:100%;display:block}
+#tx{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:0 9%;pointer-events:none;color:#ffe9c9}
+#ti{font:400 13.5cqw/1.1 'Great Vibes',cursive;opacity:0;transition:opacity 3s;text-shadow:0 0 18px #ff8fb8,0 0 40px #f5b942;margin-bottom:5cqw}
+#fr{font:italic 500 4.4cqw/1.5 'Cormorant Garamond',Georgia,serif;opacity:0;transition:opacity 3.5s;text-shadow:0 0 12px #000,0 0 22px #b3446f}
+#tx.sh #ti,#tx.sh #fr{opacity:1}
+#tx{background:radial-gradient(closest-side,rgba(10,6,24,.0),rgba(10,6,24,0));}
+#go{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4cqw;background:rgba(10,6,24,.82);color:#ffe9c9;font:italic 500 5.5cqw 'Cormorant Garamond',Georgia,serif;cursor:pointer;text-align:center;padding:10%}
+#go b{font:400 14cqw 'Great Vibes',cursive;text-shadow:0 0 20px #ff8fb8}
+#go span{border:1px solid #f5b942;border-radius:99px;padding:2.5cqw 7cqw;font-size:4.6cqw}
+#rp{position:absolute;right:4%;bottom:3%;opacity:0;transition:opacity 2s;background:none;border:1px solid #f5b94288;color:#ffe9c9;border-radius:99px;padding:6px 14px;font:italic 15px Georgia,serif;cursor:pointer}
+#rp.sh{opacity:.8}
+</style></head><body>
+<div id="st">
+<canvas id="c" width="540" height="960"></canvas>
+<div id="tx"><div id="ti">MI DAVI ❤️</div><div id="fr">“Así como este árbol crece con el tiempo, mi amor por ti crece cada día. Que nuestras raíces sean fuertes, que nunca nos falten motivos para florecer y que nuestra historia siga creciendo para siempre.”</div></div>
+<button id="rp">↺ Ver de nuevo</button>
+<div id="go"><b>Para ti</b><div>Una semilla, un árbol, una historia</div><span>Toca para comenzar ♪</span></div>
+</div>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d'),W=540,H=960,GY=780,CX=270;
+let seed=7;const R=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const cl=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),ez=v=>{v=cl(v);return v*v*(3-2*v)};
+const MD=5;
+function gen(a,X,Y,A,L,Wd,d,dir){a.push({x:X,y:Y,a:A,l:L,w:Wd,d,ex:X+Math.sin(A)*L,ey:Y-Math.cos(A)*L});
+ if(d>=MD)return;const e=a[a.length-1];
+ const n=d==1&&dir>0?3:2;
+ for(let i=0;i<n;i++){const s=n==2?(i?1:-1):(i-1);gen(a,e.ex,e.ey,A+s*(.38+R()*.3)+(R()-.5)*.1,L*(dir>0?.78:.72),Wd*.68,d+1,dir)}}
+const tree=[],roots=[];
+gen(tree,CX,GY,0,165,22,0,1);
+for(let i=0;i<5;i++)gen(roots,CX+(i-2)*4,GY+2,Math.PI+(i-2)*.5,70,9,2,-1);
+const deco=[];
+tree.forEach(b=>{if(b.d>=3){
+ for(let i=0;i<3;i++)deco.push({t:'l',x:b.ex+(R()-.5)*34,y:b.ey+(R()-.5)*34,s:5+R()*5,at:26+R()*6,r:R()*6});
+ if(R()<.6)deco.push({t:'f',x:b.ex+(R()-.5)*26,y:b.ey+(R()-.5)*26,s:5+R()*4,at:20+R()*5,r:R()*6});
+ if(b.d>=4&&R()<.55)deco.push({t:'h',x:b.ex+(R()-.5)*30,y:b.ey+(R()-.5)*30,s:5+R()*4,at:22+R()*5,r:R()});
+ deco.push({t:'o',x:b.ex+(R()-.5)*40,y:b.ey+(R()-.5)*40,s:3+R()*3,at:27+R()*5,r:R()*6});}});
+const stars=[...Array(150)].map(()=>({x:R()*W,y:R()*GY*.85,s:.4+R()*1.4,p:R()*6}));
+const pts=[...Array(110)].map(()=>({x:60+R()*420,y:300+R()*500,v:.15+R()*.4,p:R()*6,s:1+R()*2.2,pet:R()<.4}));
+function heart(X,Y,s,rot){x.save();x.translate(X,Y);x.rotate(rot);x.beginPath();x.moveTo(0,s*.4);x.bezierCurveTo(-s,-s*.2,-s*.4,-s,0,-s*.4);x.bezierCurveTo(s*.4,-s,s,-s*.2,0,s*.4);x.fill();x.restore()}
+function glow(X,Y,r,c,a){const g=x.createRadialGradient(X,Y,0,X,Y,r);g.addColorStop(0,c.replace('A',a));g.addColorStop(1,c.replace('A',0));x.fillStyle=g;x.fillRect(X-r,Y-r,2*r,2*r)}
+function limb(b,g,col){const s=b.d/(MD+1),p=ez((g-s)*(MD+1));if(p<=0)return;
+ x.strokeStyle=col;x.lineCap='round';x.lineWidth=b.w*(1-.25*p)+1;x.beginPath();x.moveTo(b.x,b.y);x.lineTo(b.x+(b.ex-b.x)*p,b.y+(b.ey-b.y)*p);x.stroke()}
+let t0=null,started=false;
+function frame(now){requestAnimationFrame(frame);if(!started)return;const t=(now-t0)/1000;
+ // sky
+ let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0a0618');g.addColorStop(.6,'#2a1240');g.addColorStop(1,'#5a2350');x.fillStyle=g;x.fillRect(0,0,W,H);
+ stars.forEach(s=>{x.fillStyle=`rgba(255,240,215,${.4+.6*Math.abs(Math.sin(t*.8+s.p))})`;x.beginPath();x.arc(s.x,s.y,s.s,0,7);x.fill()});
+ glow(420,150,170,'rgba(255,214,140,A)',.35);
+ const z=1+.32*ez((t-17)/24);x.save();x.translate(CX,520);x.scale(z,z);x.translate(-CX,-520-(z-1)*60);
+ // ground
+ g=x.createLinearGradient(0,GY-10,0,H);g.addColorStop(0,'#4a2230');g.addColorStop(1,'#1a0c1e');x.fillStyle=g;
+ x.beginPath();x.moveTo(-200,GY+6);x.quadraticCurveTo(CX,GY-24,W+200,GY+6);x.lineTo(W+200,H+300);x.lineTo(-200,H+300);x.fill();
+ glow(CX,GY,150,'rgba(255,190,140,A)',.25*ez((t-4)/5));
+ // roots
+ const rg=ez((t-6)/14);roots.forEach(b=>limb(b,rg,'#6b3a3a'));
+ // seed
+ const sa=1-ez((t-5)/2);if(sa>0){x.save();x.globalAlpha=sa;glow(CX,GY-4,40+8*Math.sin(t*3),'rgba(255,215,140,A)',.6*ez(t/3));x.fillStyle='#d9a45b';x.beginPath();x.ellipse(CX,GY-4,7,10,.3,0,7);x.fill();x.restore()}
+ // tree
+ const tg=ez((t-5)/16);tree.forEach(b=>limb(b,tg,'#7a4636'));
+ // decorations
+ const sw=Math.sin(t*.9)*1.5;
+ deco.forEach(d=>{const p=ez((t-d.at)/1.4);if(p<=0)return;const X=d.x+sw*(GY-d.y)/300,Y=d.y,s=d.s*p;
+  if(d.t=='l'){x.fillStyle=d.r>3?'rgba(246,196,92,.9)':'rgba(255,160,190,.85)';x.beginPath();x.ellipse(X,Y,s*1.3,s*.7,d.r,0,7);x.fill()}
+  else if(d.t=='f'){x.fillStyle='#ffc4d9';for(let k=0;k<5;k++){x.beginPath();x.ellipse(X+Math.cos(k*1.256)*s*.8,Y+Math.sin(k*1.256)*s*.8,s*.6,s*.6,0,0,7);x.fill()}x.fillStyle='#ffd98a';x.beginPath();x.arc(X,Y,s*.45,0,7);x.fill()}
+  else if(d.t=='h'){x.fillStyle=`rgba(255,90,140,${.85})`;heart(X,Y+Math.sin(t*1.5+d.r*9)*2,s*1.4,Math.sin(t+d.r*9)*.2)}
+  else{const tw=.5+.5*Math.sin(t*2+d.r*5);glow(X,Y,18*p+6*tw,'rgba(255,205,120,A)',.55+.4*tw)}});
+ // particles
+ const pa=ez((t-21)/5);if(pa>0)pts.forEach(q=>{const yy=q.pet?(q.y+(t*q.v*40))%520+280:q.y-((t*q.v*30)%520)+(q.y<300?520:0),xx=q.x+Math.sin(t*.6+q.p)*25;
+  if(q.pet){x.fillStyle=`rgba(255,175,200,${.8*pa})`;x.beginPath();x.ellipse(xx,yy,q.s*2.2,q.s,t+q.p,0,7);x.fill()}
+  else glow(xx,yy,q.s*5,'rgba(255,220,150,A)',pa*(.5+.4*Math.sin(t*2+q.p)))});
+ x.restore();
+ g=x.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,H*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(8,3,16,.6)');x.fillStyle=g;x.fillRect(0,0,W,H);
+ const tx=document.getElementById('tx');if(t>33){tx.classList.add('sh');document.getElementById('ti').style.transitionDelay='0s';document.getElementById('fr').style.transitionDelay='3s'}
+ if(t>46)document.getElementById('rp').classList.add('sh');
+ // el texto se atenúa suavemente sobre la escena
+ if(t>33){x.fillStyle=`rgba(10,6,24,${.45*ez((t-33)/4)})`;x.fillRect(0,0,W,H)}
+}
+requestAnimationFrame(frame);
+// música: piano suave generado
+let ac,mg,timer;
+function note(f,at,d,v){const o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain();o.type='triangle';o2.type='sine';o.frequency.value=f;o2.frequency.value=f*2;
+ g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(v,at+.015);g.gain.exponentialRampToValueAtTime(.0001,at+d);
+ o.connect(g);o2.connect(g);g.connect(mg);o.start(at);o2.start(at);o.stop(at+d);o2.stop(at+d)}
+const CH=[[261.6,329.6,392,523.3],[196,246.9,293.7,392],[220,261.6,329.6,440],[174.6,220,261.6,349.2]],ML=[659.3,587.3,523.3,698.5];
+let bar=0;
+function sched(){const c=CH[bar%4],n=ac.currentTime+.1;note(c[0]/2,n,2.4,.16);
+ [0,1,2,3,2,1,2,3].forEach((k,i)=>note(c[k],n+i*.3,1.6,.1));
+ if(bar>1){note(ML[bar%4],n+.6,2,.09);if(bar%2)note(ML[(bar+1)%4]*1.125,n+1.5,1.8,.07)}
+ bar++;timer=setTimeout(sched,2400)}
+function start(){const A=window.AudioContext||window.webkitAudioContext;if(A){ac=new A();mg=ac.createGain();mg.gain.value=.8;const d=ac.createDelay(),fb=ac.createGain();d.delayTime.value=.38;fb.gain.value=.35;mg.connect(ac.destination);mg.connect(d);d.connect(fb);fb.connect(d);d.connect(ac.destination);sched()}
+ t0=performance.now();started=true}
+document.getElementById('go').onclick=function(){this.style.display='none';start()};
+document.getElementById('rp').onclick=function(){this.classList.remove('sh');const tx=document.getElementById('tx');tx.classList.remove('sh');t0=performance.now()};
+</script></body></html>
